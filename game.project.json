@@ -1,0 +1,35 @@
+{
+  "name": "THE_SIXTH_NIGHT_GAME_CODE",
+  "servePort": 34872,
+  "tree": {
+    "$className": "DataModel",
+    "ReplicatedStorage": {
+      "$className": "ReplicatedStorage",
+      "$ignoreUnknownInstances": true,
+      "TSN_RojoBridge": {
+        "$path": "src/rojo-check"
+      }
+    },
+    "ServerScriptService": {
+      "$className": "ServerScriptService",
+      "$ignoreUnknownInstances": true,
+      "ForestGenerator": {
+        "$path": "src/server/ForestGenerator.server.lua"
+      },
+      "TSN_CarIntro": {
+        "$path": "src/server/TSN_CarIntro.server.lua"
+      }
+    },
+    "StarterPlayer": {
+      "$className": "StarterPlayer",
+      "$ignoreUnknownInstances": true,
+      "StarterPlayerScripts": {
+        "$className": "StarterPlayerScripts",
+        "$ignoreUnknownInstances": true,
+        "TSN_CarIntroClient": {
+          "$path": "src/client/TSN_CarIntroClient.client.lua"
+        }
+      }
+    }
+  }
+}

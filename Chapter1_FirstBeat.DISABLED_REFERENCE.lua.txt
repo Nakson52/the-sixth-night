@@ -1,0 +1,130 @@
+-- THE SIXTH NIGHT | Chapter I narrative test v0.2
+-- IMPORTANT: insert into LocalScript at StarterPlayer > StarterPlayerScripts.
+-- Test with Play (F5), not Run.
+
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
+
+local player = Players.LocalPlayer
+if not player then
+    error("[TSN] This must be a LocalScript in StarterPlayerScripts")
+end
+local guiParent = player:WaitForChild("PlayerGui")
+local old = guiParent:FindFirstChild("TSN_Chapter1Beat")
+if old then old:Destroy() end
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "TSN_Chapter1Beat"
+gui.IgnoreGuiInset = true
+gui.ResetOnSpawn = false
+gui.DisplayOrder = 40
+gui.Parent = guiParent
+
+local function label(name, pos, size, align, font, textSize)
+    local t = Instance.new("TextLabel")
+    t.Name = name
+    t.BackgroundTransparency = 1
+    t.Position = pos
+    t.Size = size
+    t.TextColor3 = Color3.fromRGB(230, 235, 237)
+    t.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+    t.TextStrokeTransparency = 0.55
+    t.TextTransparency = 1
+    t.Font = font
+    t.TextSize = textSize
+    t.TextXAlignment = align
+    t.TextWrapped = true
+    t.Parent = gui
+    return t
+end
+
+local chapter = label("ChapterTitle", UDim2.fromScale(0.08, 0.34), UDim2.fromScale(0.84, 0.15), Enum.TextXAlignment.Center, Enum.Font.GothamMedium, 28)
+local subtitle = label("Subtitle", UDim2.fromScale(0.12, 0.81), UDim2.fromScale(0.76, 0.1), Enum.TextXAlignment.Center, Enum.Font.Gotham, 21)
+local objective = label("Objective", UDim2.fromScale(0.04, 0.065), UDim2.fromScale(0.7, 0.085), Enum.TextXAlignment.Left, Enum.Font.GothamMedium, 17)
+
+local function fade(t, alpha, duration)
+    local tween = TweenService:Create(t, TweenInfo.new(duration, Enum.EasingStyle.Sine), {TextTransparency = alpha})
+    tween:Play()
+    tween.Completed:Wait()
+end
+local function say(text, duration)
+    subtitle.Text = text
+    fade(subtitle, 0, 0.4)
+    task.wait(duration)
+    fade(subtitle, 1, 0.4)
+end
+
+print("[THE SIXTH NIGHT] Chapter I LocalScript v0.2 STARTED")
+objective.Text = "THE SIXTH NIGHT | СЦЕНАРИЙ ЗАПУЩЕН"
+objective.TextTransparency = 0.1
+
+task.wait(1.2)
+local character = player.Character or player.CharacterAdded:Wait()
+local root = character:WaitForChild("HumanoidRootPart", 15)
+if not root then
+    warn("[THE SIXTH NIGHT] HumanoidRootPart not found")
+    objective.Text = "ОШИБКА: не найден персонаж"
+    return
+end
+
+local startPosition = root.Position
+local totalWalked = 0
+local previousPosition = root.Position
+local requiredWalk = 24
+local reached = false
+
+-- Start counting movement immediately, even while opening dialogue plays.
+local movementConnection
+movementConnection = RunService.Heartbeat:Connect(function()
+    if reached then return end
+    if root.Parent == nil then
+        character = player.Character
+        local newRoot = character and character:FindFirstChild("HumanoidRootPart")
+        if newRoot then
+            root = newRoot
+            previousPosition = root.Position
+            startPosition = root.Position
+            totalWalked = 0
+        end
+        return
+    end
+    local currentPosition = root.Position
+    local delta = currentPosition - previousPosition
+    local step = Vector3.new(delta.X, 0, delta.Z).Magnitude
+    -- Do not count teleports as walking.
+    if step < 5 then
+        totalWalked += step
+    end
+    previousPosition = currentPosition
+end)
+
+chapter.Text = "ГЛАВА I  ·  ПОСЛЕДНИЙ ВЕЧЕР"
+fade(chapter, 0, 0.9)
+task.wait(1.7)
+fade(chapter, 1, 0.7)
+
+say("Артём: Странно... Кажется, я знаю эту дорогу.", 2.4)
+say("Даня: Ты же сам сказал, что никогда здесь не был.", 2.4)
+say("Артём: ...Да. Забудь.", 1.4)
+
+objective.TextTransparency = 0.12
+while gui.Parent and totalWalked < requiredWalk do
+    objective.Text = string.format("ОСМОТРИТЕ ДОРОГУ  ·  %d / %d", math.floor(totalWalked), requiredWalk)
+    task.wait(0.15)
+end
+
+reached = true
+if movementConnection then movementConnection:Disconnect() end
+if not gui.Parent then return end
+print("[THE SIXTH NIGHT] Movement trigger reached | walked:", math.floor(totalWalked))
+objective.Text = "ЧТО-ТО НЕ ТАК..."
+say("Лера: Подождите. Почему здесь нет ни одного указателя?", 2.6)
+chapter.Text = "03:17"
+chapter.TextColor3 = Color3.fromRGB(195, 209, 221)
+chapter.TextTransparency = 0.02
+task.wait(0.5)
+chapter.TextTransparency = 1
+say("Артём: Давайте просто вернёмся к машине.", 2.6)
+objective.Text = "ПЕРВЫЙ СЮЖЕТНЫЙ ТЕСТ ЗАВЕРШЁН"
+print("[THE SIXTH NIGHT] Chapter I narrative beat v0.2 completed")
